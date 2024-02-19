@@ -1,6 +1,6 @@
 package com.github.theia.global.security.jwt;
 
-import com.github.theia.global.security.jwt.dto.TokenResponse;
+import com.github.theia.adapter.in.rest.dto.TokenResponse;
 import com.github.theia.global.security.jwt.exception.ExpiredJwtException;
 import com.github.theia.global.security.principle.AuthDetailsService;
 import io.jsonwebtoken.Claims;
@@ -35,14 +35,9 @@ public class JwtTokenProvider {
 
     public TokenResponse getAccessToken(String email) {
         String accessToken = generateToken(email, accessExp, ACCESS_KEY);
+        String refreshToken = generateToken(email, refreshExp, REFRESH_KEY);
 
-        return new TokenResponse(accessToken);
-    }
-
-    public TokenResponse getRefreshToken(String email) {
-        String accessToken = generateToken(email, refreshExp, REFRESH_KEY);
-
-        return new TokenResponse(accessToken);
+        return new TokenResponse(accessToken, refreshToken);
     }
 
     private String generateToken(String userName, long expiration, String type) {
