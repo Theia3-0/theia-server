@@ -4,16 +4,18 @@ import com.github.theia.adapter.in.rest.dto.request.UserSignupRequest;
 import com.github.theia.adapter.in.rest.dto.respose.KaKaoInfo;
 import com.github.theia.adapter.in.rest.dto.respose.TokenResponse;
 import com.github.theia.application.port.in.KakaoLoginUseCase;
-import com.github.theia.application.port.in.KakaoSignupUseCase;
+import com.github.theia.application.port.in.AuthSignupUseCase;
 import com.github.theia.application.port.out.IsUserByEmailPort;
 import com.github.theia.application.port.out.LoadUserByUserEmailPort;
 import com.github.theia.application.port.out.isNotNullUserByNamePort;
 import com.github.theia.application.port.out.SaveUserPort;
 import com.github.theia.domain.user.UserEntity;
+import com.github.theia.facade.UserFacade;
 import com.github.theia.global.error.exception.TheiaException;
 import com.github.theia.global.feign.client.KakaoInformationClient;
 import com.github.theia.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +26,13 @@ import static com.github.theia.global.error.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase {
+public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
 
     private final SaveUserPort saveUserPort;
     private final IsUserByEmailPort isUserByEmailPort;
     private final isNotNullUserByNamePort isUserByNamePort;
     private final LoadUserByUserEmailPort loadUserByUserEmailPort;
+    private final UserFacade userFacade;
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoInformationClient kakaoInformationClient;
 
@@ -59,8 +62,11 @@ public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase {
     }
 
     @Override
-    public void signup(UserSignupRequest userSignupRequest, UserEntity user) {
-        if (isUserByNamePort.isNotNullUserByName(user.getUserName()))
+    public void signup(UserSignupRequest userSignupRequest) {
+
+        UserEntity user = new UserEntity(1L, null, "asd");
+
+        if (isUserByNamePort.isNotNullUserByName(userSignupRequest.getUserName()))
             throw new TheiaException(DUPLICATE_USER);
 
         UserEntity newUser = loadUserByUserEmailPort.findByUserEmail(user.getUserEmail())

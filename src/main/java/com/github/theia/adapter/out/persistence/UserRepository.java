@@ -33,6 +33,6 @@ public class UserRepository implements LoadUserByUserEmailPort, SaveUserPort, Is
 
     @Override
     public boolean isNotNullUserByName(String name) {
-        return userJpaRepository.existsByUserNameIsNotNull(name);
+        return userJpaRepository.existsByUserName(name);
     }
 }
