@@ -20,6 +20,9 @@ spring:
   jackson:
     property-naming-strategy: SNAKE_CASE
 
+  kakao:
+    userApiUrl: https://kapi.kakao.com/v2/user/me
+
   jwt:
     secretKey: ${SECRETKEY}
     refreshKey: ${REFRESHKEY}
