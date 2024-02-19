@@ -1,4 +1,4 @@
-package com.github.theia.adapter.in.rest.dto;
+package com.github.theia.adapter.in.rest.dto.respose;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

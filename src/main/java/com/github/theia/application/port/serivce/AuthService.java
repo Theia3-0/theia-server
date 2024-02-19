@@ -1,7 +1,7 @@
 package com.github.theia.application.port.serivce;
 
-import com.github.theia.adapter.in.rest.dto.KaKaoInfo;
-import com.github.theia.adapter.in.rest.dto.TokenResponse;
+import com.github.theia.adapter.in.rest.dto.respose.KaKaoInfo;
+import com.github.theia.adapter.in.rest.dto.respose.TokenResponse;
 import com.github.theia.application.port.in.KakaoLoginUseCase;
 import com.github.theia.application.port.out.IsUserByEmailPort;
 import com.github.theia.application.port.out.SaveUserPort;
@@ -26,7 +26,6 @@ public class AuthService implements KakaoLoginUseCase {
     private final IsUserByEmailPort isUserByEmailPort;
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoInformationClient kakaoInformationClient;
-
 
     @Value("${spring.kakao.userApiUrl}")
     private String kakaoUserApiUrl;

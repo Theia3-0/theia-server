@@ -1,6 +1,6 @@
 package com.github.theia.global.feign.client;
 
-import com.github.theia.adapter.in.rest.dto.KaKaoInfo;
+import com.github.theia.adapter.in.rest.dto.respose.KaKaoInfo;
 import com.github.theia.global.feign.config.KaKaoFeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
