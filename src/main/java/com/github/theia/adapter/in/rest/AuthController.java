@@ -3,7 +3,6 @@ package com.github.theia.adapter.in.rest;
 import com.github.theia.adapter.in.rest.dto.request.UserLoginRequest;
 import com.github.theia.adapter.in.rest.dto.respose.TokenResponse;
 import com.github.theia.application.port.in.KakaoLoginUseCase;
-import com.github.theia.global.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,9 +1,13 @@
 package com.github.theia.application.port.serivce;
 
+import com.github.theia.adapter.in.rest.dto.request.UserSignupRequest;
 import com.github.theia.adapter.in.rest.dto.respose.KaKaoInfo;
 import com.github.theia.adapter.in.rest.dto.respose.TokenResponse;
 import com.github.theia.application.port.in.KakaoLoginUseCase;
+import com.github.theia.application.port.in.KakaoSignupUseCase;
 import com.github.theia.application.port.out.IsUserByEmailPort;
+import com.github.theia.application.port.out.LoadUserByUserEmailPort;
+import com.github.theia.application.port.out.isNotNullUserByNamePort;
 import com.github.theia.application.port.out.SaveUserPort;
 import com.github.theia.domain.user.UserEntity;
 import com.github.theia.global.error.exception.TheiaException;
@@ -20,10 +24,12 @@ import static com.github.theia.global.error.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService implements KakaoLoginUseCase {
+public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase {
 
     private final SaveUserPort saveUserPort;
     private final IsUserByEmailPort isUserByEmailPort;
+    private final isNotNullUserByNamePort isUserByNamePort;
+    private final LoadUserByUserEmailPort loadUserByUserEmailPort;
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoInformationClient kakaoInformationClient;
 
@@ -50,5 +56,18 @@ public class AuthService implements KakaoLoginUseCase {
         } catch (URISyntaxException e) {
             throw new TheiaException(ERROR_FEIGN);
         }
+    }
+
+    @Override
+    public void signup(UserSignupRequest userSignupRequest, UserEntity user) {
+        if (isUserByNamePort.isNotNullUserByName(user.getUserName()))
+            throw new TheiaException(DUPLICATE_USER);
+
+        UserEntity newUser = loadUserByUserEmailPort.findByUserEmail(user.getUserEmail())
+                .orElseThrow(() -> new TheiaException(NOT_FOUND_USER));
+
+        newUser.editUserName(userSignupRequest.getUserName());
+
+        saveUserPort.save(newUser);
     }
 }
