@@ -1,7 +1,6 @@
 package com.github.theia.application.port.serivce;
 
 import com.github.theia.adapter.in.rest.dto.request.UserSignupRequest;
-import com.github.theia.adapter.in.rest.dto.respose.KaKaoAccount;
 import com.github.theia.adapter.in.rest.dto.respose.KaKaoInfo;
 import com.github.theia.adapter.in.rest.dto.respose.TokenResponse;
 import com.github.theia.application.port.in.KakaoLoginUseCase;
@@ -45,29 +44,32 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
     @Override
     @Transactional
     public TokenResponse login(String accessToken) {
-        //            KaKaoInfo kaKaoInfo = kakaoInformationClient.getInfo(new URI(kakaoUserApiUrl), "bearer " + accessToken);
-        KaKaoInfo kaKaoInfo = new KaKaoInfo(new KaKaoAccount("s23012@gsm.hs.kr"));
+        try {
+            KaKaoInfo kaKaoInfo = kakaoInformationClient.getInfo(new URI(kakaoUserApiUrl), "bearer " + accessToken);
 
-        String userEmail = kaKaoInfo.getKakaoAccount().getEmail();
+            String userEmail = kaKaoInfo.getKakaoAccount().getEmail();
 
-        if (!isUserByEmailPort.isUserByEmail(userEmail)) {
-            UserEntity user = UserEntity.builder()
-                    .userEmail(userEmail)
-                    .build();
-
-            saveUserPort.save(user);
-        }
-
-        TokenResponse tokenResponse = jwtTokenProvider.getAccessToken(userEmail);
-
-        saveRefreshTokenPort.save(RefreshTokenRedisEntity.builder()
+            if (!isUserByEmailPort.isUserByEmail(userEmail)) {
+                UserEntity user = UserEntity.builder()
                         .userEmail(userEmail)
-                        .refreshToken(tokenResponse.getRefreshToken())
-                        .expiredAt(refreshExp)
-                .build());
+                        .build();
 
-        return tokenResponse;
+                saveUserPort.save(user);
+            }
 
+            TokenResponse tokenResponse = jwtTokenProvider.getAccessToken(userEmail);
+
+            saveRefreshTokenPort.save(RefreshTokenRedisEntity.builder()
+                            .userEmail(userEmail)
+                            .refreshToken(tokenResponse.getRefreshToken())
+                            .expiredAt(refreshExp)
+                    .build());
+
+            return tokenResponse;
+
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+        }
     }
 
     @Override
