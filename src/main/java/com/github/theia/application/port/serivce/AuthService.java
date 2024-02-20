@@ -46,29 +46,32 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase, UserIn
 
     @Override
     public TokenResponse login(String accessToken) {
-        //            KaKaoInfo kaKaoInfo = kakaoInformationClient.getInfo(new URI(kakaoUserApiUrl), "bearer " + accessToken);
-        KaKaoInfo kaKaoInfo = new KaKaoInfo(new KaKaoAccount("s23012@gsm.hs.kr"));
+        try {
+            KaKaoInfo kaKaoInfo = kakaoInformationClient.getInfo(new URI(kakaoUserApiUrl), "bearer " + accessToken);
 
-        String userEmail = kaKaoInfo.getKakaoAccount().getEmail();
+            String userEmail = kaKaoInfo.getKakaoAccount().getEmail();
 
-        if (!isUserByEmailPort.isUserByEmail(userEmail)) {
-            UserEntity user = UserEntity.builder()
-                    .userEmail(userEmail)
-                    .build();
-
-            saveUserPort.save(user);
-        }
-
-        TokenResponse tokenResponse = jwtTokenProvider.getAccessToken(userEmail);
-
-        RefreshTokenRedisEntity refreshTokenRedisEntity = saveRefreshTokenPort.save(RefreshTokenRedisEntity.builder()
+            if (!isUserByEmailPort.isUserByEmail(userEmail)) {
+                UserEntity user = UserEntity.builder()
                         .userEmail(userEmail)
-                        .refreshToken(tokenResponse.getRefreshToken())
-                        .expiredAt(refreshExp)
-                .build());
+                        .build();
 
-        return new TokenResponse(tokenResponse.getAccessToken(), refreshTokenRedisEntity.getRefreshToken());
+                saveUserPort.save(user);
+            }
 
+            TokenResponse tokenResponse = jwtTokenProvider.getAccessToken(userEmail);
+
+            RefreshTokenRedisEntity refreshTokenRedisEntity = saveRefreshTokenPort.save(RefreshTokenRedisEntity.builder()
+                            .userEmail(userEmail)
+                            .refreshToken(tokenResponse.getRefreshToken())
+                            .expiredAt(refreshExp)
+                    .build());
+
+            return new TokenResponse(tokenResponse.getAccessToken(), refreshTokenRedisEntity.getRefreshToken());
+
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+        }
     }
 
     @Override

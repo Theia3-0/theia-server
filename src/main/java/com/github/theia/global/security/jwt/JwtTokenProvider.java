@@ -34,7 +34,7 @@ public class JwtTokenProvider {
     private static final String REFRESH_KEY = "refresh_token";
     public static final String ACCESS_HEADER = "Authorization";
     public static final String REFRESH_HEADER = "Refersh-Token";
-    public static final String BEARER_PREFIX = "Bearer";
+    public static final String BEARER_PREFIX = "Bearer ";
 
     public TokenResponse getAccessToken(String email) {
         String accessToken = generateToken(email, accessExp);
