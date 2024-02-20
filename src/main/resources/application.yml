@@ -33,5 +33,3 @@ spring:
     refreshKey: ${REFRESHKEY}
     accessExp: ${ACCESSEXP}
     refreshExp: ${REFRESHEXP}
-
-cookie-domain: localhost
