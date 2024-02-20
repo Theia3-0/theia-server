@@ -1,6 +1,6 @@
 package com.github.theia.global.security.jwt;
 
-import com.github.theia.adapter.in.rest.dto.respose.TokenResponse;
+import com.github.theia.adapter.auth.in.presentation.dto.respose.TokenResponse;
 import com.github.theia.global.security.jwt.exception.ExpiredJwtException;
 import com.github.theia.global.security.principle.AuthDetailsService;
 import io.jsonwebtoken.Claims;

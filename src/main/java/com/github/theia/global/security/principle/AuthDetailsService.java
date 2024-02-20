@@ -1,6 +1,6 @@
 package com.github.theia.global.security.principle;
 
-import com.github.theia.application.port.out.LoadUserByUserEmailPort;
+import com.github.theia.application.auth.port.out.LoadUserByUserEmailPort;
 import com.github.theia.domain.user.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

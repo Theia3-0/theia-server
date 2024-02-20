@@ -1,14 +1,11 @@
 package com.github.theia.facade;
 
-import com.github.theia.application.port.out.LoadUserByUserEmailPort;
+import com.github.theia.application.auth.port.out.LoadUserByUserEmailPort;
 import com.github.theia.domain.user.UserEntity;
-import com.github.theia.global.error.exception.ErrorCode;
 import com.github.theia.global.error.exception.TheiaException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Optional;
 
 import static com.github.theia.global.error.exception.ErrorCode.*;
 
