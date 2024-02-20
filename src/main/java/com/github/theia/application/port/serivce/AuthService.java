@@ -3,8 +3,10 @@ package com.github.theia.application.port.serivce;
 import com.github.theia.adapter.in.rest.dto.request.UserSignupRequest;
 import com.github.theia.adapter.in.rest.dto.respose.KaKaoInfo;
 import com.github.theia.adapter.in.rest.dto.respose.TokenResponse;
+import com.github.theia.adapter.in.rest.dto.respose.UserInfoResponse;
 import com.github.theia.application.port.in.KakaoLoginUseCase;
 import com.github.theia.application.port.in.AuthSignupUseCase;
+import com.github.theia.application.port.in.UserInfoUseCase;
 import com.github.theia.application.port.out.*;
 import com.github.theia.domain.refresh.RefreshTokenRedisEntity;
 import com.github.theia.domain.user.UserEntity;
@@ -23,7 +25,7 @@ import static com.github.theia.global.error.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
+public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase, UserInfoUseCase {
 
     private final SaveUserPort saveUserPort;
     private final IsUserByEmailPort isUserByEmailPort;
@@ -84,5 +86,16 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
         newUser.editUserName(userSignupRequest.getUserName());
 
         saveUserPort.save(newUser);
+    }
+
+    @Override
+    public UserInfoResponse findUserInfo() {
+
+        UserEntity user = userFacade.getCurrentUser();
+
+        return UserInfoResponse.builder()
+                .userId(user.getUserSeq())
+                .userName(user.getUserName())
+                .build();
     }
 }
