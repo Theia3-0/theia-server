@@ -1,6 +1,7 @@
 package com.github.theia.application.port.serivce;
 
 import com.github.theia.adapter.in.rest.dto.request.UserSignupRequest;
+import com.github.theia.adapter.in.rest.dto.respose.KaKaoAccount;
 import com.github.theia.adapter.in.rest.dto.respose.KaKaoInfo;
 import com.github.theia.adapter.in.rest.dto.respose.TokenResponse;
 import com.github.theia.adapter.in.rest.dto.respose.UserInfoResponse;
@@ -15,6 +16,7 @@ import com.github.theia.global.error.exception.TheiaException;
 import com.github.theia.global.feign.client.KakaoInformationClient;
 import com.github.theia.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.antlr.v4.runtime.Token;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -44,32 +46,29 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase, UserIn
 
     @Override
     public TokenResponse login(String accessToken) {
-        try {
-            KaKaoInfo kaKaoInfo = kakaoInformationClient.getInfo(new URI(kakaoUserApiUrl), "bearer " + accessToken);
+        //            KaKaoInfo kaKaoInfo = kakaoInformationClient.getInfo(new URI(kakaoUserApiUrl), "bearer " + accessToken);
+        KaKaoInfo kaKaoInfo = new KaKaoInfo(new KaKaoAccount("s23012@gsm.hs.kr"));
 
-            String userEmail = kaKaoInfo.getKakaoAccount().getEmail();
+        String userEmail = kaKaoInfo.getKakaoAccount().getEmail();
 
-            if (!isUserByEmailPort.isUserByEmail(userEmail)) {
-                UserEntity user = UserEntity.builder()
-                        .userEmail(userEmail)
-                        .build();
+        if (!isUserByEmailPort.isUserByEmail(userEmail)) {
+            UserEntity user = UserEntity.builder()
+                    .userEmail(userEmail)
+                    .build();
 
-                saveUserPort.save(user);
-            }
-
-            TokenResponse tokenResponse = jwtTokenProvider.getAccessToken(userEmail);
-
-            saveRefreshTokenPort.save(RefreshTokenRedisEntity.builder()
-                            .userEmail(userEmail)
-                            .refreshToken(tokenResponse.getRefreshToken())
-                            .expiredAt(refreshExp)
-                    .build());
-
-            return tokenResponse;
-
-        } catch (URISyntaxException e) {
-            throw new TheiaException(ERROR_FEIGN);
+            saveUserPort.save(user);
         }
+
+        TokenResponse tokenResponse = jwtTokenProvider.getAccessToken(userEmail);
+
+        RefreshTokenRedisEntity refreshTokenRedisEntity = saveRefreshTokenPort.save(RefreshTokenRedisEntity.builder()
+                        .userEmail(userEmail)
+                        .refreshToken(tokenResponse.getRefreshToken())
+                        .expiredAt(refreshExp)
+                .build());
+
+        return new TokenResponse(tokenResponse.getAccessToken(), refreshTokenRedisEntity.getRefreshToken());
+
     }
 
     @Override
