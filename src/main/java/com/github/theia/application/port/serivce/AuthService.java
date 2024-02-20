@@ -1,13 +1,10 @@
 package com.github.theia.application.port.serivce;
 
 import com.github.theia.adapter.in.rest.dto.request.UserSignupRequest;
-import com.github.theia.adapter.in.rest.dto.respose.KaKaoAccount;
 import com.github.theia.adapter.in.rest.dto.respose.KaKaoInfo;
 import com.github.theia.adapter.in.rest.dto.respose.TokenResponse;
-import com.github.theia.adapter.in.rest.dto.respose.UserInfoResponse;
 import com.github.theia.application.port.in.KakaoLoginUseCase;
 import com.github.theia.application.port.in.AuthSignupUseCase;
-import com.github.theia.application.port.in.UserInfoUseCase;
 import com.github.theia.application.port.out.*;
 import com.github.theia.domain.refresh.RefreshTokenRedisEntity;
 import com.github.theia.domain.user.UserEntity;
@@ -16,9 +13,9 @@ import com.github.theia.global.error.exception.TheiaException;
 import com.github.theia.global.feign.client.KakaoInformationClient;
 import com.github.theia.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.Token;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,7 +24,7 @@ import static com.github.theia.global.error.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase, UserInfoUseCase {
+public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
 
     private final SaveUserPort saveUserPort;
     private final IsUserByEmailPort isUserByEmailPort;
@@ -45,6 +42,7 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase, UserIn
     public Long refreshExp;
 
     @Override
+    @Transactional
     public TokenResponse login(String accessToken) {
         try {
             KaKaoInfo kaKaoInfo = kakaoInformationClient.getInfo(new URI(kakaoUserApiUrl), "bearer " + accessToken);
@@ -61,13 +59,13 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase, UserIn
 
             TokenResponse tokenResponse = jwtTokenProvider.getAccessToken(userEmail);
 
-            RefreshTokenRedisEntity refreshTokenRedisEntity = saveRefreshTokenPort.save(RefreshTokenRedisEntity.builder()
+            saveRefreshTokenPort.save(RefreshTokenRedisEntity.builder()
                             .userEmail(userEmail)
                             .refreshToken(tokenResponse.getRefreshToken())
                             .expiredAt(refreshExp)
                     .build());
 
-            return new TokenResponse(tokenResponse.getAccessToken(), refreshTokenRedisEntity.getRefreshToken());
+            return tokenResponse;
 
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
@@ -75,6 +73,7 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase, UserIn
     }
 
     @Override
+    @Transactional
     public void signup(UserSignupRequest userSignupRequest) {
 
         UserEntity user = userFacade.getCurrentUser();
@@ -88,16 +87,5 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase, UserIn
         newUser.editUserName(userSignupRequest.getUserName());
 
         saveUserPort.save(newUser);
-    }
-
-    @Override
-    public UserInfoResponse findUserInfo() {
-
-        UserEntity user = userFacade.getCurrentUser();
-
-        return UserInfoResponse.builder()
-                .userId(user.getUserSeq())
-                .userName(user.getUserName())
-                .build();
     }
 }
