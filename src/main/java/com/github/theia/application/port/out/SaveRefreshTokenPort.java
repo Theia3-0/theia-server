@@ -1,7 +1,7 @@
 package com.github.theia.application.port.out;
 
-import com.github.theia.domain.refresh.RefreshTokenRedisEntitry;
+import com.github.theia.domain.refresh.RefreshTokenRedisEntity;
 
 public interface SaveRefreshTokenPort {
-    RefreshTokenRedisEntitry save(RefreshTokenRedisEntitry refreshTokenRedisEntitry);
+    RefreshTokenRedisEntity save(RefreshTokenRedisEntity refreshTokenRedisEntity);
 }

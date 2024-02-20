@@ -44,7 +44,7 @@ public class JwtTokenProvider {
     }
 
     private String generateToken(String email, long expiration) {
-        return "Bearer " + Jwts.builder().signWith(SignatureAlgorithm.HS256, secretKey)
+        return Jwts.builder().signWith(SignatureAlgorithm.HS256, secretKey)
                 .setSubject(email)
                 .setHeaderParam("typ", ACCESS_KEY)
                 .setIssuedAt(new Date())
@@ -53,7 +53,7 @@ public class JwtTokenProvider {
     }
 
     private String generateRefrshToken(String email, long expiration) {
-        return "Bearer " + Jwts.builder().signWith(SignatureAlgorithm.HS256, refreshKey)
+        return Jwts.builder().signWith(SignatureAlgorithm.HS256, refreshKey)
                 .setSubject(email)
                 .setHeaderParam("typ", REFRESH_KEY)
                 .setIssuedAt(new Date())

@@ -12,10 +12,10 @@ import org.springframework.data.redis.core.index.Indexed;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class RefreshTokenRedisEntitry {
+public class RefreshTokenRedisEntity {
     @Id
-    @Column(name = "user_seq")
-    private String userSeq;
+    @Column(name = "user_email")
+    private String userEmail;
 
     @Indexed
     @Column(name = "refresh_token")
