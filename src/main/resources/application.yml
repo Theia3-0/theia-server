@@ -21,12 +21,12 @@ spring:
     property-naming-strategy: SNAKE_CASE
 
   kakao:
-    userApiUrl: https://kapi.kakao.com/v2/user/me
+    userApiUrl: ${USERAPIURL}
 
   data:
     redis:
       host: ${HOST}
-      port: 32433
+      port: ${PORT}
 
   jwt:
     secretKey: ${SECRETKEY}
