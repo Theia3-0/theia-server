@@ -1,6 +1,6 @@
 package com.github.theia.global.security.jwt;
 
-import com.github.theia.global.security.jwt.dto.TokenResponse;
+import com.github.theia.adapter.in.rest.dto.respose.TokenResponse;
 import com.github.theia.global.security.jwt.exception.ExpiredJwtException;
 import com.github.theia.global.security.principle.AuthDetailsService;
 import io.jsonwebtoken.Claims;
@@ -32,41 +32,48 @@ public class JwtTokenProvider {
 
     private static final String ACCESS_KEY = "access_token";
     private static final String REFRESH_KEY = "refresh_token";
+    public static final String ACCESS_HEADER = "Authorization";
+    public static final String REFRESH_HEADER = "Refersh-Token";
+    public static final String BEARER_PREFIX = "Bearer";
 
     public TokenResponse getAccessToken(String email) {
-        String accessToken = generateToken(email, accessExp, ACCESS_KEY);
+        String accessToken = generateToken(email, accessExp);
+        String refreshToken = generateRefrshToken(email, refreshExp);
 
-        return new TokenResponse(accessToken);
+        return new TokenResponse(accessToken, refreshToken);
     }
 
-    public TokenResponse getRefreshToken(String email) {
-        String accessToken = generateToken(email, refreshExp, REFRESH_KEY);
-
-        return new TokenResponse(accessToken);
+    private String generateToken(String email, long expiration) {
+        return Jwts.builder().signWith(SignatureAlgorithm.HS256, secretKey)
+                .setSubject(email)
+                .setHeaderParam("typ", ACCESS_KEY)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
+                .compact();
     }
 
-    private String generateToken(String userName, long expiration, String type) {
-        return "Bearer " + Jwts.builder().signWith(SignatureAlgorithm.HS256, secretKey)
-                .setSubject(userName)
-                .setHeaderParam("typ", type)
+    private String generateRefrshToken(String email, long expiration) {
+        return Jwts.builder().signWith(SignatureAlgorithm.HS256, refreshKey)
+                .setSubject(email)
+                .setHeaderParam("typ", REFRESH_KEY)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
                 .compact();
     }
 
     public String resolveAccessToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
+        String bearer = request.getHeader(ACCESS_HEADER);
         return parseToken(bearer);
     }
 
     public String resolveRefreshToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Refersh-Token");
+        String bearer = request.getHeader(REFRESH_HEADER);
         return parseToken(bearer);
     }
 
     public String parseToken(String bearerToken) {
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.replace("Bearer ", "");
+        if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.replace(BEARER_PREFIX, "");
         }
         return null;
     }
