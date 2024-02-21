@@ -1,6 +1,5 @@
 package com.github.theia.adapter.user.out.persistence;
 
-import com.github.theia.application.auth.port.out.IsUserByEmailPort;
 import com.github.theia.application.auth.port.out.IsUserByNamePort;
 import com.github.theia.application.auth.port.out.LoadUserByUserEmailPort;
 import com.github.theia.application.auth.port.out.SaveUserPort;
@@ -12,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class UserRepository implements LoadUserByUserEmailPort, SaveUserPort, IsUserByEmailPort, IsUserByNamePort {
+public class UserRepository implements LoadUserByUserEmailPort, SaveUserPort, IsUserByNamePort {
 
     private final UserJpaRepository userJpaRepository;
 
@@ -24,11 +23,6 @@ public class UserRepository implements LoadUserByUserEmailPort, SaveUserPort, Is
     @Override
     public UserEntity save(UserEntity user) {
         return userJpaRepository.save(user);
-    }
-
-    @Override
-    public boolean isUserByEmail(String email) {
-        return userJpaRepository.existsByUserEmail(email);
     }
 
     @Override

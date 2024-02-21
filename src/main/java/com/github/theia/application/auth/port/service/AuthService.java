@@ -28,7 +28,6 @@ import static com.github.theia.global.error.exception.ErrorCode.*;
 public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
 
     private final SaveUserPort saveUserPort;
-    private final IsUserByEmailPort isUserByEmailPort;
     private final IsUserByNamePort isUserByNamePort;
     private final LoadUserByUserEmailPort loadUserByUserEmailPort;
     private final SaveRefreshTokenPort saveRefreshTokenPort;
@@ -51,13 +50,17 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
             String userEmail = kaKaoInfo.getKakaoAccount().getEmail();
             boolean isSignedUp = true;
 
-            if (!isUserByEmailPort.isUserByEmail(userEmail)) {
-                UserEntity user = UserEntity.builder()
+            UserEntity currentUser = loadUserByUserEmailPort.findByUserEmail(userEmail).orElse(null);
+
+            if (currentUser == null) {
+                UserEntity newUser = UserEntity.builder()
                         .userEmail(userEmail)
                         .build();
 
-                saveUserPort.save(user);
+                saveUserPort.save(newUser);
 
+                isSignedUp = false;
+            } else if (currentUser.getUserName().isEmpty()) {
                 isSignedUp = false;
             }
 
