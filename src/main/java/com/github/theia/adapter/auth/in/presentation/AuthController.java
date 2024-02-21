@@ -2,7 +2,8 @@ package com.github.theia.adapter.auth.in.presentation;
 
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserLoginRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserSignupRequest;
-import com.github.theia.adapter.auth.in.presentation.dto.respose.TokenResponse;
+import com.github.theia.adapter.auth.in.presentation.dto.respose.LoginUseCaseDto;
+import com.github.theia.adapter.auth.in.presentation.dto.respose.UserLoginResponse;
 import com.github.theia.application.auth.port.in.AuthSignupUseCase;
 import com.github.theia.application.auth.port.in.KakaoLoginUseCase;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,15 +22,15 @@ public class AuthController {
     private final AuthSignupUseCase authSignupUseCase;
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(HttpServletResponse httpServletResponse,
-                                      @RequestBody UserLoginRequest userLoginRequest) {
+    public ResponseEntity<UserLoginResponse> login(HttpServletResponse httpServletResponse,
+                                                   @RequestBody UserLoginRequest userLoginRequest) {
 
-        TokenResponse tokenResponse = kakaoLoginUseCase.login(userLoginRequest.getAccessToken());
+        LoginUseCaseDto loginUseCaseDto = kakaoLoginUseCase.login(userLoginRequest.getAccessToken());
 
-        httpServletResponse.addHeader(ACCESS_HEADER, BEARER_PREFIX + tokenResponse.getAccessToken());
-        httpServletResponse.addHeader(REFRESH_HEADER, BEARER_PREFIX + tokenResponse.getRefreshToken());
+        httpServletResponse.addHeader(ACCESS_HEADER, BEARER_PREFIX + loginUseCaseDto.getTokenResponse().getAccessToken());
+        httpServletResponse.addHeader(REFRESH_HEADER, BEARER_PREFIX + loginUseCaseDto.getTokenResponse().getRefreshToken());
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new UserLoginResponse(loginUseCaseDto.isSignedUp()));
     }
 
     @PatchMapping("/signup")

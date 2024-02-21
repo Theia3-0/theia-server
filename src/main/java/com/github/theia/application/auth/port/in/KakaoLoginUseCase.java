@@ -1,7 +1,7 @@
 package com.github.theia.application.auth.port.in;
 
-import com.github.theia.adapter.auth.in.presentation.dto.respose.TokenResponse;
+import com.github.theia.adapter.auth.in.presentation.dto.respose.LoginUseCaseDto;
 
 public interface KakaoLoginUseCase {
-    TokenResponse login(String accessToken);
+    LoginUseCaseDto login(String accessToken);
 }

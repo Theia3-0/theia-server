@@ -2,6 +2,7 @@ package com.github.theia.application.auth.port.service;
 
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.KaKaoInfo;
+import com.github.theia.adapter.auth.in.presentation.dto.respose.LoginUseCaseDto;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.TokenResponse;
 import com.github.theia.application.auth.port.in.KakaoLoginUseCase;
 import com.github.theia.application.auth.port.in.AuthSignupUseCase;
@@ -43,11 +44,12 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
 
     @Override
     @Transactional
-    public TokenResponse login(String accessToken) {
+    public LoginUseCaseDto login(String accessToken) {
         try {
             KaKaoInfo kaKaoInfo = kakaoInformationClient.getInfo(new URI(kakaoUserApiUrl), "bearer " + accessToken);
 
             String userEmail = kaKaoInfo.getKakaoAccount().getEmail();
+            boolean isSignedUp = true;
 
             if (!isUserByEmailPort.isUserByEmail(userEmail)) {
                 UserEntity user = UserEntity.builder()
@@ -55,6 +57,8 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
                         .build();
 
                 saveUserPort.save(user);
+
+                isSignedUp = false;
             }
 
             TokenResponse tokenResponse = jwtTokenProvider.getAccessToken(userEmail);
@@ -65,7 +69,7 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
                             .expiredAt(refreshExp)
                     .build());
 
-            return tokenResponse;
+            return new LoginUseCaseDto(tokenResponse, isSignedUp);
 
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
