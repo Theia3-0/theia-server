@@ -75,7 +75,7 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
             return new LoginUseCaseDto(tokenResponse, isSignedUp);
 
             } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
+                throw new TheiaException(ERROR_FEIGN);
         }
     }
 
