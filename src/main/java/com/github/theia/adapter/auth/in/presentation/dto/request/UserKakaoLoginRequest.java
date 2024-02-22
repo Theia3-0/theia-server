@@ -5,6 +5,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserSignupRequest {
-    private String userName;
+public class UserKakaoLoginRequest {
+    private String accessToken;
 }

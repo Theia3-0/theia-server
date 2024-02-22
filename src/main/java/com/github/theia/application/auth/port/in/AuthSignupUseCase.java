@@ -1,7 +1,7 @@
 package com.github.theia.application.auth.port.in;
 
-import com.github.theia.adapter.auth.in.presentation.dto.request.UserSignupRequest;
+import com.github.theia.adapter.auth.in.presentation.dto.request.UserKakaoSignupRequest;
 
 public interface AuthSignupUseCase {
-    void signup(UserSignupRequest userSignupRequest);
+    void signup(UserKakaoSignupRequest userKakaoSignupRequest);
 }

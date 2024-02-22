@@ -1,6 +1,6 @@
 package com.github.theia.application.auth.port.service;
 
-import com.github.theia.adapter.auth.in.presentation.dto.request.UserSignupRequest;
+import com.github.theia.adapter.auth.in.presentation.dto.request.UserKakaoSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.KaKaoInfo;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.LoginUseCaseDto;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.TokenResponse;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import static com.github.theia.global.error.exception.ErrorCode.*;
 
@@ -81,17 +80,17 @@ public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
 
     @Override
     @Transactional
-    public void signup(UserSignupRequest userSignupRequest) {
+    public void signup(UserKakaoSignupRequest userKakaoSignupRequest) {
 
         UserEntity user = userFacade.getCurrentUser();
 
-        if (isUserByNamePort.isUserByName(userSignupRequest.getUserName()))
+        if (isUserByNamePort.isUserByName(userKakaoSignupRequest.getUserName()))
             throw new TheiaException(DUPLICATE_USER);
 
         UserEntity newUser = loadUserByUserEmailPort.findByUserEmail(user.getUserEmail())
                 .orElseThrow(() -> new TheiaException(NOT_FOUND_USER));
 
-        newUser.editUserName(userSignupRequest.getUserName());
+        newUser.editUserName(userKakaoSignupRequest.getUserName());
 
         saveUserPort.save(newUser);
     }
