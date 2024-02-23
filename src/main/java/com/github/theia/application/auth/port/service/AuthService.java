@@ -5,7 +5,7 @@ import com.github.theia.adapter.auth.in.presentation.dto.respose.KaKaoInfo;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.LoginUseCaseDto;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.TokenResponse;
 import com.github.theia.application.auth.port.in.KakaoLoginUseCase;
-import com.github.theia.application.auth.port.in.AuthSignupUseCase;
+import com.github.theia.application.auth.port.in.KakaoSignupUseCase;
 import com.github.theia.application.auth.port.out.*;
 import com.github.theia.domain.refresh.RefreshTokenRedisEntity;
 import com.github.theia.domain.user.UserEntity;
@@ -24,7 +24,7 @@ import static com.github.theia.global.error.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService implements KakaoLoginUseCase, AuthSignupUseCase {
+public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase {
 
     private final SaveUserPort saveUserPort;
     private final IsUserByNamePort isUserByNamePort;

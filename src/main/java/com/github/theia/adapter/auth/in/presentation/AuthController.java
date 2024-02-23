@@ -4,7 +4,7 @@ import com.github.theia.adapter.auth.in.presentation.dto.request.UserKakaoLoginR
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserKakaoSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.LoginUseCaseDto;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.UserLoginResponse;
-import com.github.theia.application.auth.port.in.AuthSignupUseCase;
+import com.github.theia.application.auth.port.in.KakaoSignupUseCase;
 import com.github.theia.application.auth.port.in.KakaoLoginUseCase;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import static com.github.theia.global.security.jwt.JwtTokenProvider.*;
 public class AuthController {
 
     private final KakaoLoginUseCase kakaoLoginUseCase;
-    private final AuthSignupUseCase authSignupUseCase;
+    private final KakaoSignupUseCase authSignupUseCase;
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponse> login(HttpServletResponse httpServletResponse,
