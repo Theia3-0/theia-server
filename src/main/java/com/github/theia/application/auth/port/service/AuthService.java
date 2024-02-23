@@ -1,30 +1,38 @@
 package com.github.theia.application.auth.port.service;
 
+import com.github.theia.adapter.auth.in.presentation.dto.request.UserEmailSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserKakaoSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.KaKaoInfo;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.LoginUseCaseDto;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.TokenResponse;
+import com.github.theia.application.auth.port.in.AuthSignupUseCase;
 import com.github.theia.application.auth.port.in.KakaoLoginUseCase;
 import com.github.theia.application.auth.port.in.KakaoSignupUseCase;
 import com.github.theia.application.auth.port.out.*;
+import com.github.theia.application.email.port.out.LoadEmailAuthByEmailPort;
+import com.github.theia.domain.email.EmailAuthRedisEntity;
 import com.github.theia.domain.refresh.RefreshTokenRedisEntity;
 import com.github.theia.domain.user.UserEntity;
 import com.github.theia.facade.UserFacade;
 import com.github.theia.global.error.exception.TheiaException;
 import com.github.theia.global.feign.client.KakaoInformationClient;
 import com.github.theia.global.security.jwt.JwtTokenProvider;
+import com.github.theia.s3.S3Manager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.URI;
 
 import static com.github.theia.global.error.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase {
+public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase, AuthSignupUseCase {
 
     private final SaveUserPort saveUserPort;
     private final IsUserByNamePort isUserByNamePort;
@@ -33,6 +41,9 @@ public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase {
     private final UserFacade userFacade;
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoInformationClient kakaoInformationClient;
+    private final LoadEmailAuthByEmailPort loadEmailAuthByEmailPort;
+    private final PasswordEncoder passwordEncoder;
+    private final S3Manager s3Manager;
 
     @Value("${spring.kakao.userApiUrl}")
     private String kakaoUserApiUrl;
@@ -91,6 +102,36 @@ public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase {
                 .orElseThrow(() -> new TheiaException(NOT_FOUND_USER));
 
         newUser.editUserName(userKakaoSignupRequest.getUserName());
+
+        saveUserPort.save(newUser);
+    }
+
+    @Override
+    @Transactional
+    public void signup(UserEmailSignupRequest userEmailSignupRequest, MultipartFile profile_img) {
+        String email = userEmailSignupRequest.getEmail();
+        String password = passwordEncoder.encode(userEmailSignupRequest.getPassword());
+        String user_name = userEmailSignupRequest.getUser_name();
+        String user_profile_url;
+
+        EmailAuthRedisEntity emailAuth = loadEmailAuthByEmailPort.findByEmail(email)
+                .orElseThrow(() -> new TheiaException(NOT_FOUND_EMAIL));
+
+        if (!emailAuth.getAuthentication())
+            throw new TheiaException(UNAUTHORIZATION_EMAIL);
+
+        try {
+            user_profile_url = s3Manager.uploadImages(profile_img);
+        } catch (IOException e) {
+            throw new TheiaException(ERROR_S3);
+        }
+
+        UserEntity newUser = UserEntity.builder()
+                    .userEmail(email)
+                    .userName(user_name)
+                    .password(password)
+                    .userProfileUrl(user_profile_url)
+                .build();
 
         saveUserPort.save(newUser);
     }
