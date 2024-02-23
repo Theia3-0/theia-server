@@ -29,3 +29,20 @@ spring:
     refreshKey: ${REFRESHKEY}
     accessExp: ${ACCESSEXP}
     refreshExp: ${REFRESHEXP}
+
+  mail:
+    host: ${EMAILHOST}
+    port: ${EMAILPORT}
+    username: ${EMAILUSERNAME}
+    password: ${EMAILPASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+  codeExp: ${CODEEXP}
