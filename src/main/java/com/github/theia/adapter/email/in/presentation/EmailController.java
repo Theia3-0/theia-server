@@ -18,7 +18,7 @@ public class EmailController {
 
     @PostMapping
     public ResponseEntity<Void> sendEmail(@RequestBody EmailSendRequest emailSendRequest) {
-        emailService.sendEmail(emailSendRequest.getEmail(), "title", "text");
+        emailService.sendEmail(emailSendRequest.getEmail(), "[Theia] 이메일 인증");
         return ResponseEntity.ok().build();
     }
 

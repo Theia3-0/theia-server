@@ -6,12 +6,17 @@ import com.github.theia.application.email.port.out.LoadEmailAuthByEmailPort;
 import com.github.theia.application.email.port.out.SaveEmailPort;
 import com.github.theia.domain.email.EmailAuthRedisEntity;
 import com.github.theia.global.error.exception.TheiaException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -30,16 +35,17 @@ public class EmailService implements SendEmailUseCase, VerifyEmailUseCase {
     private final SaveEmailPort saveEmailPort;
     private final LoadEmailAuthByEmailPort loadEmailAuthByEmailPort;
     private final JavaMailSender emailSender;
+    private final TemplateEngine templateEngine;
 
     @Override
     @Transactional
-    public void sendEmail(String toEmail, String title, String text) {
+    public void sendEmail(String email, String title) {
         String code = createCode();
 
-        EmailAuthRedisEntity emailAuthRedisEntity = loadEmailAuthByEmailPort.findByEmail(toEmail)
+        EmailAuthRedisEntity emailAuthRedisEntity = loadEmailAuthByEmailPort.findByEmail(email)
                 .orElse(
                         EmailAuthRedisEntity.builder()
-                            .email(toEmail)
+                            .email(email)
                             .code(code)
                             .authentication(false)
                             .attemptCount(0)
@@ -52,9 +58,13 @@ public class EmailService implements SendEmailUseCase, VerifyEmailUseCase {
 
         emailAuthRedisEntity.updateCode(code);
 
-        SimpleMailMessage message = createEmailForm(toEmail, title, code);
-
         try {
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(email);
+            helper.setSubject(title);
+            helper.setText(createMailTemplate(code), true);
             saveEmailPort.save(emailAuthRedisEntity);
             emailSender.send(message);
         } catch (Exception e) {
@@ -63,6 +73,7 @@ public class EmailService implements SendEmailUseCase, VerifyEmailUseCase {
     }
 
     @Override
+    @Transactional
     public void verifyEmail(String email, String code) {
         EmailAuthRedisEntity emailAuth = loadEmailAuthByEmailPort.findByEmail(email)
                 .orElseThrow(() -> new TheiaException(NOT_FOUND_EMAIL));
@@ -72,15 +83,6 @@ public class EmailService implements SendEmailUseCase, VerifyEmailUseCase {
         emailAuth.updateAuthentication(true);
 
         saveEmailPort.save(emailAuth);
-    }
-
-    private SimpleMailMessage createEmailForm(String toEmail, String title, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject(title);
-        message.setText(text);
-
-        return message;
     }
 
     private String createCode() {
@@ -96,5 +98,12 @@ public class EmailService implements SendEmailUseCase, VerifyEmailUseCase {
         } catch (NoSuchAlgorithmException e) {
             throw new TheiaException(ERROR_CODE);
         }
+    }
+
+    private String createMailTemplate(String code) {
+        Context context = new Context();
+        context.setVariable("code", code);
+
+        return templateEngine.process("mail-template", context);
     }
 }
