@@ -33,4 +33,8 @@ public class EmailAuthRedisEntity {
         this.code = code;
         this.attemptCount++;
     }
+
+    public void updateAuthentication(Boolean authentication) {
+        this.authentication = authentication;
+    }
 }

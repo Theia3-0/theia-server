@@ -12,7 +12,10 @@ public enum ErrorCode {
     DUPLICATE_USER(400, "Duplicated User"),
     NOT_FOUND_USER(404, "Not Found User"),
 
+    NOT_FOUND_EMAIL(400, "Not Found Email"),
+    NOT_VERIFY_CODE(400, "Not Verify Code"),
     MANY_EMAIL(400, "Many Mail Request"),
+
     ERROR_EMAIL(500, "Email Send Error"),
     ERROR_CODE(500, "Random Code Error"),
     ERROR_FEIGN(400, "Kakao Feign Error");
