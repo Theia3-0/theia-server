@@ -31,9 +31,9 @@ spring:
     refreshExp: ${REFRESHEXP}
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: vvwv309@gmail.com
+    host: ${EMAILHOST}
+    port: ${EMAILPORT}
+    username: ${EMAILUSERNAME}
     password: ${EMAILPASSWORD}
     properties:
       mail:
@@ -45,4 +45,4 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
-  auth-code-expiration-millis: 1800000
+  codeExp: ${CODEEXP}
