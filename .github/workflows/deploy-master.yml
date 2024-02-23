@@ -20,3 +20,15 @@ jobs:
           token: ${{ secrets.CLOUDTYPE_TOKEN }}
           project: tlsgmltjd/hello-board
           stage: main
+          yaml: >
+            name: theia-server
+
+            app: java@17
+
+            options:
+              ports: 8080
+              
+            context:
+              git:
+                url: git@github.com:${{ github.repository }}.git
+                ref: ${{ github.ref }}
