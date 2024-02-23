@@ -108,10 +108,10 @@ public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase, AuthS
 
     @Override
     @Transactional
-    public void signup(UserEmailSignupRequest userEmailSignupRequest, MultipartFile profile_img) {
+    public void signup(UserEmailSignupRequest userEmailSignupRequest, MultipartFile profileImg) {
         String email = userEmailSignupRequest.getEmail();
         String password = passwordEncoder.encode(userEmailSignupRequest.getPassword());
-        String user_name = userEmailSignupRequest.getUser_name();
+        String user_name = userEmailSignupRequest.getUserName();
         String user_profile_url;
 
         EmailAuthRedisEntity emailAuth = loadEmailAuthByEmailPort.findByEmail(email)
@@ -121,7 +121,7 @@ public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase, AuthS
             throw new TheiaException(UNAUTHORIZATION_EMAIL);
 
         try {
-            user_profile_url = s3Manager.uploadImages(profile_img);
+            user_profile_url = s3Manager.uploadImages(profileImg);
         } catch (IOException e) {
             throw new TheiaException(ERROR_S3);
         }

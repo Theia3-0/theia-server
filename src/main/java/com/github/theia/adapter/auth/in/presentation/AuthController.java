@@ -1,15 +1,18 @@
 package com.github.theia.adapter.auth.in.presentation;
 
+import com.github.theia.adapter.auth.in.presentation.dto.request.UserEmailSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserKakaoLoginRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserKakaoSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.LoginUseCaseDto;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.UserLoginResponse;
+import com.github.theia.application.auth.port.in.AuthSignupUseCase;
 import com.github.theia.application.auth.port.in.KakaoSignupUseCase;
 import com.github.theia.application.auth.port.in.KakaoLoginUseCase;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import static com.github.theia.global.security.jwt.JwtTokenProvider.*;
 
@@ -19,10 +22,11 @@ import static com.github.theia.global.security.jwt.JwtTokenProvider.*;
 public class AuthController {
 
     private final KakaoLoginUseCase kakaoLoginUseCase;
-    private final KakaoSignupUseCase authSignupUseCase;
+    private final KakaoSignupUseCase kakaoSignupUseCase;
+    private final AuthSignupUseCase authSignupUseCase;
 
-    @PostMapping("/login")
-    public ResponseEntity<UserLoginResponse> login(HttpServletResponse httpServletResponse,
+    @PostMapping("/kakao")
+    public ResponseEntity<UserLoginResponse> kakaoLogin(HttpServletResponse httpServletResponse,
                                                    @RequestBody UserKakaoLoginRequest userKakaoLoginRequest) {
 
         LoginUseCaseDto loginUseCaseDto = kakaoLoginUseCase.login(userKakaoLoginRequest.getAccessToken());
@@ -33,10 +37,19 @@ public class AuthController {
         return ResponseEntity.ok(new UserLoginResponse(loginUseCaseDto.isSignedUp()));
     }
 
-    @PatchMapping("/signup")
-    public ResponseEntity<Void> signup(@RequestBody UserKakaoSignupRequest userKakaoSignupRequest) {
+    @PatchMapping("/kakao")
+    public ResponseEntity<Void> kakaoSignup(@RequestBody UserKakaoSignupRequest userKakaoSignupRequest) {
 
-        authSignupUseCase.signup(userKakaoSignupRequest);
+        kakaoSignupUseCase.signup(userKakaoSignupRequest);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<Void> signup(@RequestPart(name = "request") UserEmailSignupRequest request,
+                                       @RequestPart(name = "profile_img") MultipartFile profileImg) {
+
+        authSignupUseCase.signup(request, profileImg);
 
         return ResponseEntity.ok().build();
     }

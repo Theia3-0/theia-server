@@ -4,5 +4,5 @@ import com.github.theia.adapter.auth.in.presentation.dto.request.UserEmailSignup
 import org.springframework.web.multipart.MultipartFile;
 
 public interface AuthSignupUseCase {
-    void signup(UserEmailSignupRequest userEmailSignupRequest, MultipartFile profile_img);
+    void signup(UserEmailSignupRequest userEmailSignupRequest, MultipartFile profileImg);
 }
