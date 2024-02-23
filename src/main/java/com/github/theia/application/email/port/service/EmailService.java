@@ -41,9 +41,14 @@ public class EmailService implements SendEmailUseCase {
                             .email(toEmail)
                             .code(code)
                             .authentication(false)
+                            .attemptCount(0)
                             .expiredAt(authCodeExp)
                             .build()
                 );
+
+        if (emailAuthRedisEntity.getAttemptCount() >= 5) {
+            throw new TheiaException(MANY_EMAIL);
+        }
 
         emailAuthRedisEntity.updateCode(code);
 

@@ -22,11 +22,15 @@ public class EmailAuthRedisEntity {
     @Column(name = "authentication")
     private Boolean authentication;
 
+    @Column(name = "attempt_count")
+    private Integer attemptCount;
+
     @TimeToLive
     @Column(name = "expired_at")
     private Long expiredAt;
 
     public void updateCode(String code) {
         this.code = code;
+        this.attemptCount++;
     }
 }
