@@ -13,6 +13,7 @@ public enum ErrorCode {
     NOT_FOUND_USER(404, "Not Found User"),
 
     ERROR_EMAIL(500, "Email Send Error"),
+    ERROR_CODE(500, "Random Code Error"),
     ERROR_FEIGN(400, "Kakao Feign Error");
 
     private final int status;

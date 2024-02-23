@@ -16,10 +16,17 @@ public class EmailAuthRedisEntity {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "code")
+    private String code;
+
     @Column(name = "authentication")
     private Boolean authentication;
 
     @TimeToLive
     @Column(name = "expired_at")
     private Long expiredAt;
+
+    public void updateCode(String code) {
+        this.code = code;
+    }
 }

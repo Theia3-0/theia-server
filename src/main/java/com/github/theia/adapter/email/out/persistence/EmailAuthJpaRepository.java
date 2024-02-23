@@ -1,7 +1,10 @@
 package com.github.theia.adapter.email.out.persistence;
 
 import com.github.theia.domain.email.EmailAuthRedisEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface EmailAuthJpaRepository extends JpaRepository<EmailAuthRedisEntity, String> {
+import java.util.Optional;
+
+public interface EmailAuthJpaRepository extends CrudRepository<EmailAuthRedisEntity, String> {
+    Optional<EmailAuthRedisEntity> findByEmail(String email);
 }
