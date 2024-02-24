@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class UserInfoResponse {
     private Long userId;
     private String userName;
+    private String userProfileUrl;
 }

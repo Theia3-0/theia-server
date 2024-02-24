@@ -54,6 +54,9 @@ dependencies {
     /* stmp */
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '3.0.5'
     implementation 'javax.mail:javax.mail-api:1.6.2'
+
+    /* s3 */
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 dependencyManagement {

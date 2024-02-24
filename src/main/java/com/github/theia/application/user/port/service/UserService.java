@@ -23,6 +23,7 @@ public class UserService implements UserInfoUseCase {
         return UserInfoResponse.builder()
                 .userId(user.getUserSeq())
                 .userName(user.getUserName())
+                .userProfileUrl(user.getUserProfileUrl())
                 .build();
     }
 }
