@@ -1,10 +1,13 @@
 package com.github.theia.adapter.auth.in.presentation;
 
+import com.github.theia.adapter.auth.in.presentation.dto.request.UserEmailLoginRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserEmailSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserKakaoLoginRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserKakaoSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.LoginUseCaseDto;
+import com.github.theia.adapter.auth.in.presentation.dto.respose.TokenResponse;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.UserLoginResponse;
+import com.github.theia.application.auth.port.in.AuthLoginUseCase;
 import com.github.theia.application.auth.port.in.AuthSignupUseCase;
 import com.github.theia.application.auth.port.in.KakaoSignupUseCase;
 import com.github.theia.application.auth.port.in.KakaoLoginUseCase;
@@ -23,6 +26,7 @@ public class AuthController {
 
     private final KakaoLoginUseCase kakaoLoginUseCase;
     private final KakaoSignupUseCase kakaoSignupUseCase;
+    private final AuthLoginUseCase authLoginUseCase;
     private final AuthSignupUseCase authSignupUseCase;
 
     @PostMapping("/kakao")
@@ -41,6 +45,17 @@ public class AuthController {
     public ResponseEntity<Void> kakaoSignup(@RequestBody UserKakaoSignupRequest userKakaoSignupRequest) {
 
         kakaoSignupUseCase.signup(userKakaoSignupRequest);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Void> login(HttpServletResponse httpServletResponse,
+                                      @RequestBody UserEmailLoginRequest userEmailLoginRequest) {
+        TokenResponse tokenResponse = authLoginUseCase.login(userEmailLoginRequest);
+
+        httpServletResponse.addHeader(ACCESS_HEADER, BEARER_PREFIX + tokenResponse.getAccessToken());
+        httpServletResponse.addHeader(REFRESH_HEADER, BEARER_PREFIX + tokenResponse.getRefreshToken());
 
         return ResponseEntity.ok().build();
     }
