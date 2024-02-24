@@ -93,9 +93,10 @@ public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase, AuthS
 
     @Override
     @Transactional
-    public void signup(UserKakaoSignupRequest userKakaoSignupRequest) {
+    public void signup(UserKakaoSignupRequest userKakaoSignupRequest, MultipartFile profileImg) {
 
         UserEntity user = userFacade.getCurrentUser();
+        String user_profile_url;
 
         if (isUserByNamePort.isUserByName(userKakaoSignupRequest.getUserName()))
             throw new TheiaException(DUPLICATE_USER);
@@ -103,9 +104,30 @@ public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase, AuthS
         UserEntity newUser = loadUserByUserEmailPort.findByUserEmail(user.getUserEmail())
                 .orElseThrow(() -> new TheiaException(NOT_FOUND_USER));
 
+        try {
+            user_profile_url = s3Manager.uploadImages(profileImg);
+        } catch (IOException e) {
+            throw new TheiaException(ERROR_S3);
+        }
+
         newUser.editUserName(userKakaoSignupRequest.getUserName());
+        newUser.editUserProfileUrl(user_profile_url);
 
         saveUserPort.save(newUser);
+    }
+
+    @Override
+    public TokenResponse login(UserEmailLoginRequest userEmailLoginRequest) {
+        UserEntity user = loadUserByUserEmailPort.findByUserEmail(userEmailLoginRequest.getEmail())
+                .orElseThrow(() -> new TheiaException(NOT_FOUND_USER));
+
+        String email = user.getUserEmail();
+        String password = user.getPassword();
+
+        if (!passwordEncoder.matches(userEmailLoginRequest.getPassword(), password))
+            throw new TheiaException(NOT_MATCH_PASSWORD);
+
+        return jwtTokenProvider.getToken(email);
     }
 
     @Override
@@ -136,19 +158,5 @@ public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase, AuthS
                 .build();
 
         saveUserPort.save(newUser);
-    }
-
-    @Override
-    public TokenResponse login(UserEmailLoginRequest userEmailLoginRequest) {
-        UserEntity user = loadUserByUserEmailPort.findByUserEmail(userEmailLoginRequest.getEmail())
-                .orElseThrow(() -> new TheiaException(NOT_FOUND_USER));
-
-        String email = user.getUserEmail();
-        String password = user.getPassword();
-
-        if (!passwordEncoder.matches(userEmailLoginRequest.getPassword(), password))
-            throw new TheiaException(NOT_MATCH_PASSWORD);
-
-        return jwtTokenProvider.getToken(email);
     }
 }

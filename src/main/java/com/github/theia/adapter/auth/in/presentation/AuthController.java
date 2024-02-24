@@ -42,9 +42,10 @@ public class AuthController {
     }
 
     @PatchMapping("/kakao")
-    public ResponseEntity<Void> kakaoSignup(@RequestBody UserKakaoSignupRequest userKakaoSignupRequest) {
+    public ResponseEntity<Void> kakaoSignup(@RequestPart(name = "request") UserKakaoSignupRequest userKakaoSignupRequest,
+                                            @RequestPart(name = "profile_img") MultipartFile profileImg) {
 
-        kakaoSignupUseCase.signup(userKakaoSignupRequest);
+        kakaoSignupUseCase.signup(userKakaoSignupRequest, profileImg);
 
         return ResponseEntity.ok().build();
     }

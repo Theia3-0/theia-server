@@ -29,4 +29,8 @@ public class UserEntity {
     public void editUserName(String userName) {
         this.userName = userName;
     }
+
+    public void editUserProfileUrl(String userProfileUrl) {
+        this.userProfileUrl = userProfileUrl;
+    }
 }
