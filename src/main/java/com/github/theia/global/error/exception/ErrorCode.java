@@ -11,6 +11,7 @@ public enum ErrorCode {
     INVALID_JWT(401, "Invalid Jwt"),
     DUPLICATE_USER(400, "Duplicated User"),
     NOT_FOUND_USER(404, "Not Found User"),
+    NOT_MATCH_PASSWORD(400, "Not Match Password"),
 
     NOT_FOUND_EMAIL(404, "Not Found Email"),
     UNAUTHORIZATION_EMAIL(401, "Unauthorization Email"),

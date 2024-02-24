@@ -36,14 +36,14 @@ public class JwtTokenProvider {
     public static final String REFRESH_HEADER = "Refersh-Token";
     public static final String BEARER_PREFIX = "Bearer ";
 
-    public TokenResponse getAccessToken(String email) {
-        String accessToken = generateToken(email, accessExp);
+    public TokenResponse getToken(String email) {
+        String accessToken = generateAccessToken(email, accessExp);
         String refreshToken = generateRefrshToken(email, refreshExp);
 
         return new TokenResponse(accessToken, refreshToken);
     }
 
-    private String generateToken(String email, long expiration) {
+    private String generateAccessToken(String email, long expiration) {
         return Jwts.builder().signWith(SignatureAlgorithm.HS256, secretKey)
                 .setSubject(email)
                 .setHeaderParam("typ", ACCESS_KEY)

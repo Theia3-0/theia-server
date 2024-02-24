@@ -1,10 +1,12 @@
 package com.github.theia.application.auth.port.service;
 
+import com.github.theia.adapter.auth.in.presentation.dto.request.UserEmailLoginRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserEmailSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.request.UserKakaoSignupRequest;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.KaKaoInfo;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.LoginUseCaseDto;
 import com.github.theia.adapter.auth.in.presentation.dto.respose.TokenResponse;
+import com.github.theia.application.auth.port.in.AuthLoginUseCase;
 import com.github.theia.application.auth.port.in.AuthSignupUseCase;
 import com.github.theia.application.auth.port.in.KakaoLoginUseCase;
 import com.github.theia.application.auth.port.in.KakaoSignupUseCase;
@@ -32,7 +34,7 @@ import static com.github.theia.global.error.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase, AuthSignupUseCase {
+public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase, AuthSignupUseCase, AuthLoginUseCase {
 
     private final SaveUserPort saveUserPort;
     private final IsUserByNamePort isUserByNamePort;
@@ -74,7 +76,7 @@ public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase, AuthS
                 isSignedUp = false;
             }
 
-            TokenResponse tokenResponse = jwtTokenProvider.getAccessToken(userEmail);
+            TokenResponse tokenResponse = jwtTokenProvider.getToken(userEmail);
 
             saveRefreshTokenPort.save(RefreshTokenRedisEntity.builder()
                             .userEmail(userEmail)
@@ -134,5 +136,19 @@ public class AuthService implements KakaoLoginUseCase, KakaoSignupUseCase, AuthS
                 .build();
 
         saveUserPort.save(newUser);
+    }
+
+    @Override
+    public TokenResponse login(UserEmailLoginRequest userEmailLoginRequest) {
+        UserEntity user = loadUserByUserEmailPort.findByUserEmail(userEmailLoginRequest.getEmail())
+                .orElseThrow(() -> new TheiaException(NOT_FOUND_USER));
+
+        String email = user.getUserEmail();
+        String password = user.getPassword();
+
+        if (!passwordEncoder.matches(userEmailLoginRequest.getPassword(), password))
+            throw new TheiaException(NOT_MATCH_PASSWORD);
+
+        return jwtTokenProvider.getToken(email);
     }
 }
