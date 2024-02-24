@@ -52,6 +52,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Void> login(HttpServletResponse httpServletResponse,
                                       @RequestBody UserEmailLoginRequest userEmailLoginRequest) {
+
         TokenResponse tokenResponse = authLoginUseCase.login(userEmailLoginRequest);
 
         httpServletResponse.addHeader(ACCESS_HEADER, BEARER_PREFIX + tokenResponse.getAccessToken());
